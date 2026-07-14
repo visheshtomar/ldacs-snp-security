@@ -1,0 +1,11 @@
+# Generated RSA identity keys -- NEVER commit private keys!
+*.pem
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Session/key artifacts
+*.key
+*.iv
