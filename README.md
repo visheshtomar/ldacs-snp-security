@@ -12,9 +12,11 @@ whole thing is verified end-to-end by an automated test suite.
 ## Quick start
 
 ```bash
-python keygen.py          # generate aircraft + ground RSA identity keys
-python test_protocol.py   # run all correctness + attack tests (should print 11/11)
-python benchmark.py       # measure real crypto overhead on your machine
+python keygen.py             # generate aircraft + ground RSA identity keys
+python test_protocol.py      # run all correctness + attack tests (should print 11/11)
+python benchmark.py          # measure real crypto overhead on your machine
+python throughput.py         # CPU-only throughput (raw crypto capacity)
+python throughput_socket.py  # throughput over real UDP sockets (network view)
 ```
 
 To run the live two-terminal demo:
@@ -57,6 +59,8 @@ Requires: Python 3.10+ and the `cryptography` package (`pip install cryptography
 | `sender.py` / `receiver.py` | Live two-terminal UDP demo (aircraft / ground). |
 | `test_protocol.py` | Automated correctness + attack test suite (11 checks). |
 | `benchmark.py` | Measures real AES / RSA / full-packet overhead. |
+| `throughput.py` | Measures CPU-only throughput (raw crypto capacity). |
+| `throughput_socket.py` | Measures throughput over real UDP sockets (network view). |
 
 ---
 
@@ -73,6 +77,19 @@ Requires: Python 3.10+ and the `cryptography` package (`pip install cryptography
 
 ---
 
+## A note on throughput
+
+Two views are provided because throughput depends on where the bottleneck is:
+- `throughput.py` (**CPU-only**) shows the raw cryptographic capacity — here signing
+  dominates, so the drop versus a no-crypto baseline is large.
+- `throughput_socket.py` (**over UDP sockets**) reflects a network-limited view, where
+  the socket is the bottleneck and cryptography adds a smaller percentage.
+
+Absolute figures are machine-specific; the **relative** overhead and the size ratios
+are the durable results.
+
+---
+
 ## Honest notes for a future paper
 
 - **The dissertation's performance numbers are no longer valid**, because they came
@@ -83,8 +100,10 @@ Requires: Python 3.10+ and the `cryptography` package (`pip install cryptography
 - The emulation is still **software on general-purpose hardware over UDP**; absolute
   throughput/latency are not predictive of a deployed LDACS radio link. Report
   **relative** overhead.
-- **Natural next step (and your PhD topic):** swap RSA/DH for the NIST PQC standards
+- **Natural next step:** swap RSA/DH for the NIST PQC standards
   **ML-KEM (FIPS 203)** and **ML-DSA (FIPS 204)** using `liboqs`/`oqs-python`, and
   re-run the same tests and benchmark. Because an ML-DSA-65 signature is ~3.3 KB vs.
   256 bytes for RSA-2048, the packet-size and throughput impact on LDACS's
   constrained channel is exactly the open, quotable question worth publishing.
+
+> **Related:** [Post-quantum version (pqc-ldacs)](https://github.com/visheshtomar/pqc-ldacs) — the ML-KEM / ML-DSA implementation.
